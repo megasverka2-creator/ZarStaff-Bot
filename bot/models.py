@@ -52,3 +52,26 @@ class Usage(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utcnow, index=True
     )
+
+
+class Snapshot(Base):
+    """Taksi bazasining kunlik kesimi.
+
+    Taksi bazasi faqat joriy holatni saqlaydi — kecha nechta buyurtma
+    bo'lganini bilmaydi. Kunlik hisobotda "+12 buyurtma" deb ko'rsatish
+    uchun kesimni o'zimiz yozib boramiz.
+    """
+    __tablename__ = "snapshots"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    users: Mapped[int] = mapped_column(Integer, default=0)
+    drivers: Mapped[int] = mapped_column(Integer, default=0)
+    orders: Mapped[int] = mapped_column(Integer, default=0)
+    done: Mapped[int] = mapped_column(Integer, default=0)
+    revenue: Mapped[int] = mapped_column(BigInteger, default=0)
+    pending_apps: Mapped[int] = mapped_column(Integer, default=0)
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, index=True
+    )
