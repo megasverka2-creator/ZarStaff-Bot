@@ -21,6 +21,8 @@ async def main() -> None:
 
     from bot.db import close_db, init_db
     from bot.handlers import routers
+    from bot.reports import scheduler
+    from bot.services import close_taxi_engine
 
     await init_db()
 
@@ -37,11 +39,18 @@ async def main() -> None:
     log.info("Ruxsat berilgan: %s", settings.allowed_users)
     log.info("Kunlik limit: $%.2f", settings.daily_limit_usd)
 
+    # Kunlik hisobot fon vazifasi. Sozlanmagan bo'lsa darhol tugaydi.
+    daily = asyncio.create_task(scheduler(bot))
+
     await bot.delete_webhook(drop_pending_updates=True)
     try:
         await dp.start_polling(bot)
     finally:
+        daily.cancel()
+        await asyncio.gather(daily, return_exceptions=True)
+        await close_taxi_engine()
         await close_db()
+        await bot.session.close()
 
 
 if __name__ == "__main__":
